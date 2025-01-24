@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #ff9a9e, #fad0c4);
+      color: #333;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .weather-app {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4), 0 8px 10px rgba(255, 255, 255, 0.6);
+      width: 400px;
+      animation: fadeIn 2s ease-in-out;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .weather-app h1 {
+      margin-bottom: 15px;
+      font-size: 2.5rem;
+      color: #444;
+    }
+
+    .weather-app input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .weather-app button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #ff6f61, #ff9966);
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .weather-app button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(255, 111, 97, 0.3);
+    }
+
+    .weather-result {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      display: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      animation: slideDown 1s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .weather-result h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #333;
+    }
+
+    .weather-result p {
+      margin: 10px 0;
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    .loader {
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-top: 5px solid #ff6f61;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-app">
+    <h1>Weather App</h1>
+    <input type="text" id="location" placeholder="Enter location (e.g., London)">
+    <button id="getWeather">Get Weather</button>
+    <div id="loading" class="loader" style="display: none;"></div>
+    <div class="weather-result" id="weatherResult">
+      <h2 id="cityName"></h2>
+      <p id="temperature"></p>
+      <p id="condition"></p>
+      <p id="humidity"></p>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = '5cdcf5b65dfa4fb99a4163430252401';
+    const weatherResult = document.getElementById('weatherResult');
+    const loading = document.getElementById('loading');
+
+    document.getElementById('getWeather').addEventListener('click', async () => {
+      const location = document.getElementById('location').value;
+      if (!location) {
+        alert('Please enter a location');
+        return;
+      }
+
+      loading.style.display = 'block';
+      weatherResult.style.display = 'none';
+
+      try {
+        const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`);
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById('cityName').textContent = `Weather in ${data.location.name}, ${data.location.country}`;
+          document.getElementById('temperature').textContent = `Temperature: ${data.current.temp_c}°C`;
+          document.getElementById('condition').textContent = `Condition: ${data.current.condition.text}`;
+          document.getElementById('humidity').textContent = `Humidity: ${data.current.humidity}%`;
+
+          weatherResult.style.display = 'block';
+        } else {
+          alert(data.error.message || 'Unable to fetch weather data.');
+        }
+      } catch (error) {
+        alert('Error fetching data. Please try again.');
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
